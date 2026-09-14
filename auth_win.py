@@ -1,15 +1,12 @@
 import sys
-import pymysql
+
 
 from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLineEdit, QMessageBox
 from PyQt6.uic import loadUi
 
 from catalog_win import CatalogWin
 
-connection = pymysql.connect(host='localhost',
-                             database='shose_shop',
-                             user='root',
-                             password='root')
+
 c = connection.cursor()
 
 class AuthWin(QDialog):
