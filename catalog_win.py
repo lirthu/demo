@@ -1,13 +1,16 @@
 import sys
 
-from PyQt6.QtWidgets import QDialog, QApplication
+from PyQt6.QtWidgets import QDialog, QApplication, QPushButton
 from PyQt6.uic import loadUi
 
 
 class CatalogWin(QDialog):
-    def __init__(self, id):
+    exit_btn: QPushButton
+    def __init__(self):
         super().__init__()
-        loadUi('ui\\catalog_win.ui')
+        loadUi('ui\\catalog_win.ui',self)
+        self.exit_btn.clicked.connect(self.exit_app)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

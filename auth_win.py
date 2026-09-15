@@ -1,12 +1,12 @@
 import sys
 
-
+import pymysql
 from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLineEdit, QMessageBox
 from PyQt6.uic import loadUi
 
 from catalog_win import CatalogWin
 
-
+connection =
 c = connection.cursor()
 
 class AuthWin(QDialog):
@@ -30,7 +30,7 @@ class AuthWin(QDialog):
             res = c.fetchone()
             if res:
                 self.close()
-                self.win = CatalogWin(id=res[0])
+                self.win = CatalogWin()
                 self.win.show()
             else:
                 QMessageBox.warning(self, 'Ошибка', 'Неверный логин или пароль!')
