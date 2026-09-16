@@ -5,9 +5,8 @@ from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLineEdit, QMess
 from PyQt6.uic import loadUi
 
 from catalog_win import CatalogWin
+from db_servives import DB_service
 
-connection =
-c = connection.cursor()
 
 class AuthWin(QDialog):
     login_btn: QPushButton
@@ -18,31 +17,25 @@ class AuthWin(QDialog):
         super().__init__()
         loadUi('ui\\auth.ui', self)
         self.login_btn.clicked.connect(self.login_auth)
-        self.guest_btn.clicked.connect(self.login_guest)
+        self.guest_btn.clicked.connect(self.open_catalog)
 
     def login_auth(self):
-        login = self.login_line.text()
-        password = self.password_line.text()
+        login = self.login_line.text().strip()
+        password = self.password_line.text().strip()
         if not login or not password:
             QMessageBox.warning(self, 'Внимание!', 'Заполните все поля')
-        else:
-            c.execute('SELECT * FROM users WHERE login = %s and password = %s', (login, password,))
-            res = c.fetchone()
-            if res:
-                self.close()
-                self.win = CatalogWin()
-                self.win.show()
-            else:
-                QMessageBox.warning(self, 'Ошибка', 'Неверный логин или пароль!')
+        user = DB_service().get_user_info(login, password)
+        if user:
+            return self.open_catalog(user)
+        return None
 
-    def login_guest(self):
+    def open_catalog(self,user):
         try:
             self.close()
-            self.win = CatalogWin()
+            self.win = CatalogWin(user)
             self.win.show()
         except Exception as e:
             print(e)
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
