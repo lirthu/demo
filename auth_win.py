@@ -17,7 +17,7 @@ class AuthWin(QDialog):
         super().__init__()
         loadUi('ui\\auth.ui', self)
         self.login_btn.clicked.connect(self.login_auth)
-        self.guest_btn.clicked.connect(self.open_catalog)
+        self.guest_btn.clicked.connect(self.open_catalog_window)
 
     def login_auth(self):
         login = self.login_line.text().strip()
@@ -26,16 +26,16 @@ class AuthWin(QDialog):
             QMessageBox.warning(self, 'Внимание!', 'Заполните все поля')
         user = DB_service().get_user_info(login, password)
         if user:
-            return self.open_catalog(user)
+            return self.open_catalog_window(user)
         return None
 
-    def open_catalog(self,user):
-        try:
-            self.close()
-            self.win = CatalogWin(user)
-            self.win.show()
-        except Exception as e:
-            print(e)
+    # def open_catalog_window(self,user):
+    #     try:
+    #         self.close()
+    #         self.win = CatalogWin(user)
+    #         self.win.show()
+    #     except Exception as e:
+    #         print(e)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
