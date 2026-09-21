@@ -1,5 +1,8 @@
 import pymysql
+from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtWidgets import QMessageBox
+
+from Product import Product
 from user import User
 
 class DB_service:
@@ -31,6 +34,36 @@ class DB_service:
         except Exception as e:
             QMessageBox.warning(None, 'Ошибка получения данных!', f'Ошибка: {e}')
             return None
+
+    def get_product_info(self):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''select i.item_id, i.name, i.price, i.category, i.description, i.discount, c.name, d.name
+                i.shtuki, i.photo''')
+                res = c.fetchall()
+
+                products_list = []
+
+                if res:
+                    for product in res:
+                        if product[9]:
+                            photo_img = QImage(f'data/{product[9]}')
+                        else:
+                            photo_img = QImage(f'data/picture.png')
+                        photo_pixmap = QPixmap.fromImage(photo_img)
+
+                        products_list.append(Product(*product[:9], photo_pixmap))
+                    return products_list
+                else:
+                    QMessageBox.warning(None, 'Ошибка получения данных', 'Товары не найдены')
+                    return None
+
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
+            return None
+
 
 
 
