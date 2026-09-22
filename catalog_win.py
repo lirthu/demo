@@ -1,8 +1,11 @@
 import sys
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout
 from PyQt6.uic import loadUi
-from product import Product as product
+from PyQt6.uic.Compiler.qtproxies import QtGui
+
+from product import Product
 from db_servives import DB_service
 
 
@@ -15,11 +18,17 @@ class CatalogWin(QDialog):
 
     def __init__(self, user=None):
         super().__init__()
+
+        # self.font = QtGui.QFont()
+        # self.font.setFamily("TimesNewRoman")
+        # self.font.setPointSize(13)
+        # CatalogWin.setFont(self.font)
+
         loadUi('ui\\catalog_win.ui',self)
-        self.exit_btn.clicked.connect(self.exit_app)
+        # self.exit_btn.clicked.connect(self.exit_app)
         self.user = user
 
-        self.products_list = DB_service.get_product_info()
+        self.products_list = DB_service().get_product_info()
 
         if self.products_list:
             self.display_products(self.products_list)
@@ -38,7 +47,7 @@ class CatalogWin(QDialog):
         self.products_layout = QVBoxLayout()
         self.scrollWidget.setLayout(self.products_layout)
 
-        for products in products_list:
+        for product in products_list:
             product_widget = QWidget()
             product_layout = QVBoxLayout()
             product_widget.setLayout(product_layout)
@@ -63,18 +72,31 @@ class CatalogWin(QDialog):
             product_photo_label.setPixmap(photo)
             product_layout.addWidget(product_photo_label)
             product_info_label = QLabel(f"{product.name}<br>"
-                                        f"Описание товара {} <br>"
-                                        f"Производитель {} <br>"
-                                        f"Поставщик {} <br>"
-                                        f"Цена {} <br>"
-                                        f"Единица измерения {} <br>"
-                                        f"Кол-во на складе {} <br>")
+                                        f"Описание товара {product.description} <br>"
+                                        f"Производитель {product.id_dealer} <br>"
+                                        f"Поставщик {product.id_creator} <br>"
+                                        f"Цена {product.price} <br>"
+                                        f"Единица измерения {product.shtuki} <br>"
+                                        f"Кол-во на складе {product.amount} <br>")
 
+            product_info_label.setFixedSize(300,200)
+            # product_info_label.setFont(self.font)
+            product_info_label.setWordWrap(True)
+            product_info_label.setStyleSheet("border: 1px solid black")
+            product_layout.addWidget(product_info_label)
 
-
+            product_discount_label = QLabel(f"Действующая скидка:\n{product.discount}%")
+            # product_discount_label.setFont(self.font)
+            product_discount_label.setWordWrap(True)
+            product_discount_label.setStyleSheet("border: 1px solid black")
+            product_discount_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+            product_layout.addWidget(product_discount_label)
 
     def open_auth_win(self):
-        pass
+        from auth_win import AuthWin
+        self.win = AuthWin()
+        self.win.show()
+        self.close()
 
 
 

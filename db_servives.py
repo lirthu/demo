@@ -40,8 +40,11 @@ class DB_service:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''select i.item_id, i.name, i.price, i.category, i.description, i.discount, c.name, d.name
-                i.shtuki, i.photo''')
+                c.execute('''select i.item_id, i.name, i.price, i.category, i.description, i.photo, i.discount,
+                i.amount, c.name, d.name, i.shtuki
+                FROM items i
+                JOIN creators c on c.creator_id = i.id_creator
+                JOIN dealers d on d.dealer_id = i.id_dealer''')
                 res = c.fetchall()
                 products_list = []
                 if res:

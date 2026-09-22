@@ -1,6 +1,5 @@
 import sys
 
-import pymysql
 from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLineEdit, QMessageBox
 from PyQt6.uic import loadUi
 
@@ -29,13 +28,13 @@ class AuthWin(QDialog):
             return self.open_catalog_window(user)
         return None
 
-    # def open_catalog_window(self,user):
-    #     try:
-    #         self.close()
-    #         self.win = CatalogWin(user)
-    #         self.win.show()
-    #     except Exception as e:
-    #         print(e)
+    def open_catalog_window(self, user):
+        try:
+            self.close()
+            self.win = CatalogWin(user)
+            self.win.show()
+        except Exception as e:
+            print(e)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
