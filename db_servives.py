@@ -40,8 +40,8 @@ class DB_service:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''select i.item_id, i.name, i.price, i.category, i.description, i.photo, i.discount,
-                i.amount, c.name, d.name, i.shtuki
+                c.execute('''select i.item_id, i.name, i.price, i.category, i.description, i.discount,
+                i.amount, c.name, d.name, i.shtuki, i.photo
                 FROM items i
                 JOIN creators c on c.creator_id = i.id_creator
                 JOIN dealers d on d.dealer_id = i.id_dealer''')
@@ -49,13 +49,13 @@ class DB_service:
                 products_list = []
                 if res:
                     for product in res:
-                        if product[9]:
-                            photo_img = QImage(f'photos/{product[9]}')
+                        if product[10]:
+                            photo_img = QImage(product[10])
                         else:
-                            photo_img = QImage(f'photos/picture.png')
+                            photo_img = QImage('photos/picture.png')
                         photo_pixmap = QPixmap.fromImage(photo_img)
 
-                        products_list.append(Product(*product[:9], photo_pixmap))
+                        products_list.append(Product(*product[:10], photo_pixmap))
                     return products_list
                 else:
                     QMessageBox.warning(None, 'Ошибка получения данных', 'Товары не найдены')
@@ -66,4 +66,4 @@ class DB_service:
 
 
 
-
+# C:\Users\lirth\PycharmProjects\demo\photos

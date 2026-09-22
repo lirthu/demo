@@ -1,11 +1,9 @@
 import sys
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout
+from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout, QHBoxLayout
 from PyQt6.uic import loadUi
-from PyQt6.uic.Compiler.qtproxies import QtGui
 
-from product import Product
 from db_servives import DB_service
 
 
@@ -18,14 +16,7 @@ class CatalogWin(QDialog):
 
     def __init__(self, user=None):
         super().__init__()
-
-        # self.font = QtGui.QFont()
-        # self.font.setFamily("TimesNewRoman")
-        # self.font.setPointSize(13)
-        # CatalogWin.setFont(self.font)
-
         loadUi('ui\\catalog_win.ui',self)
-        # self.exit_btn.clicked.connect(self.exit_app)
         self.user = user
 
         self.products_list = DB_service().get_product_info()
@@ -49,7 +40,7 @@ class CatalogWin(QDialog):
 
         for product in products_list:
             product_widget = QWidget()
-            product_layout = QVBoxLayout()
+            product_layout = QHBoxLayout()
             product_widget.setLayout(product_layout)
             self.products_layout.addWidget(product_widget)
 
@@ -61,7 +52,7 @@ class CatalogWin(QDialog):
 
             if product.discount > 0:
                 discounted_price = round(product.price * (1 - product.discount / 100), 2)
-                price_text = f"<s style='color:red'>{product.price}<s> {discounted_price}"
+                price_text = f"<s style='color:red'>{product.price}</s> {discounted_price}"
             else:
                 price_text = str(product.price)
 

@@ -53,7 +53,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>../../../Downloads/ПУ/Модуль 1/import/Icon.png</pixmap>
+        <pixmap>../photos/Icon.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -86,7 +86,7 @@
         <x>0</x>
         <y>0</y>
         <width>680</width>
-        <height>541</height>
+        <height>534</height>
        </rect>
       </property>
      </widget>

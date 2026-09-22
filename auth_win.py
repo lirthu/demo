@@ -28,13 +28,11 @@ class AuthWin(QDialog):
             return self.open_catalog_window(user)
         return None
 
-    def open_catalog_window(self, user):
-        try:
-            self.close()
-            self.win = CatalogWin(user)
-            self.win.show()
-        except Exception as e:
-            print(e)
+    def open_catalog_window(self, user=None):
+        from catalog_win import CatalogWin
+        self.win = CatalogWin(user)
+        self.win.show()
+        self.close()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
