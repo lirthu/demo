@@ -63,7 +63,3 @@ class DB_service:
         except Exception as e:
             QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
             return None
-
-
-
-# C:\Users\lirth\PycharmProjects\demo\photos

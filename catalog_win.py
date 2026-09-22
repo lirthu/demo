@@ -3,9 +3,7 @@ import sys
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout, QHBoxLayout
 from PyQt6.uic import loadUi
-
 from db_servives import DB_service
-
 
 class CatalogWin(QDialog):
 
@@ -14,10 +12,17 @@ class CatalogWin(QDialog):
     scrollWidget: QWidget
     scrollArea: QScrollArea
 
+    # def set_font(self):
+    #     self.font = QtGui.QFont()
+    #     self.font.setFamily("TimesNewRoman")
+    #     self.font.setPointSize(13)
+
     def __init__(self, user=None):
         super().__init__()
         loadUi('ui\\catalog_win.ui',self)
         self.user = user
+
+        # self.set_font()
 
         self.products_list = DB_service().get_product_info()
 
@@ -45,10 +50,10 @@ class CatalogWin(QDialog):
             self.products_layout.addWidget(product_widget)
 
             if product.discount > 15:
-                product_widget.setStyleSheet("""background-color: #2E8B57""")
+                product_widget.setStyleSheet("""background-color: #D2F6E7""")
 
-            if product.amount == 0:
-                product_widget.setStyleSheet("""background-color: aqua""")
+            if product.amount <= 3:
+                product_widget.setStyleSheet("""background-color: #FF9797""")
 
             if product.discount > 0:
                 discounted_price = round(product.price * (1 - product.discount / 100), 2)
@@ -62,11 +67,10 @@ class CatalogWin(QDialog):
             photo = product.photo.scaled(product_photo_label.size())
             product_photo_label.setPixmap(photo)
             product_layout.addWidget(product_photo_label)
-            product_info_label = QLabel(f"{product.name}<br>"
+            product_info_label = QLabel(f"{product.id_dealer} | {product.name}<br>"
                                         f"Описание товара {product.description} <br>"
-                                        f"Производитель {product.id_dealer} <br>"
-                                        f"Поставщик {product.id_creator} <br>"
-                                        f"Цена {product.price} <br>"
+                                        f"Категория {product.category} <br>"
+                                        f"Цена {price_text} <br>"
                                         f"Единица измерения {product.shtuki} <br>"
                                         f"Кол-во на складе {product.amount} <br>")
 
@@ -76,7 +80,8 @@ class CatalogWin(QDialog):
             product_info_label.setStyleSheet("border: 1px solid black")
             product_layout.addWidget(product_info_label)
 
-            product_discount_label = QLabel(f"Действующая скидка:\n{product.discount}%")
+            product_discount_label = QLabel(f"Действующая скидка:<br>{product.discount}% <br>"
+                                            f"Цена {price_text} <br>")
             # product_discount_label.setFont(self.font)
             product_discount_label.setWordWrap(True)
             product_discount_label.setStyleSheet("border: 1px solid black")
@@ -88,8 +93,6 @@ class CatalogWin(QDialog):
         self.win = AuthWin()
         self.win.show()
         self.close()
-
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
