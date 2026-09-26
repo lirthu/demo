@@ -50,10 +50,10 @@ class CatalogWin(QDialog):
             self.products_layout.addWidget(product_widget)
 
             if product.discount > 15:
-                product_widget.setStyleSheet("""background-color: #D2F6E7""")
+                product_widget.setStyleSheet("""background-color: #2E8B57""")
 
-            if product.amount <= 3:
-                product_widget.setStyleSheet("""background-color: #FF9797""")
+            if product.amount == 0:
+                product_widget.setStyleSheet("""background-color: #89ffee""")
 
             if product.discount > 0:
                 discounted_price = round(product.price * (1 - product.discount / 100), 2)
@@ -67,9 +67,10 @@ class CatalogWin(QDialog):
             photo = product.photo.scaled(product_photo_label.size())
             product_photo_label.setPixmap(photo)
             product_layout.addWidget(product_photo_label)
-            product_info_label = QLabel(f"{product.id_dealer} | {product.name}<br>"
+            product_info_label = QLabel(f"{product.category} | {product.name}<br>"
                                         f"Описание товара {product.description} <br>"
-                                        f"Категория {product.category} <br>"
+                                        f"Производитель {product.id_creator} <br>"
+                                        f"Поставщик {product.id_dealer}"
                                         f"Цена {price_text} <br>"
                                         f"Единица измерения {product.shtuki} <br>"
                                         f"Кол-во на складе {product.amount} <br>")
@@ -80,8 +81,7 @@ class CatalogWin(QDialog):
             product_info_label.setStyleSheet("border: 1px solid black")
             product_layout.addWidget(product_info_label)
 
-            product_discount_label = QLabel(f"Действующая скидка:<br>{product.discount}% <br>"
-                                            f"Цена {price_text} <br>")
+            product_discount_label = QLabel(f"Действующая скидка:<br>{product.discount}% <br>")
             # product_discount_label.setFont(self.font)
             product_discount_label.setWordWrap(True)
             product_discount_label.setStyleSheet("border: 1px solid black")
