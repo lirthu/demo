@@ -25,13 +25,39 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="up_layout">
-     <item row="0" column="2" alignment="Qt::AlignRight">
-      <widget class="QPushButton" name="exit_btn">
-       <property name="styleSheet">
-        <string notr="true">background-color: #00FA9A</string>
-       </property>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>Выйти</string>
+        <string>Поиск</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" alignment="Qt::AlignVCenter">
+      <widget class="QLineEdit" name="lineEdit"/>
+     </item>
+     <item row="1" column="3" alignment="Qt::AlignRight">
+      <widget class="QComboBox" name="sort_box">
+       <item>
+        <property name="text">
+         <string>Все</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Цена выше</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Цена ниже</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="0" alignment="Qt::AlignLeft">
+      <widget class="QLabel" name="name_label">
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </item>
@@ -63,17 +89,36 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0" alignment="Qt::AlignLeft">
-      <widget class="QLabel" name="name_label">
+     <item row="0" column="3" alignment="Qt::AlignRight">
+      <widget class="QPushButton" name="exit_btn">
+       <property name="styleSheet">
+        <string notr="true">background-color: #00FA9A</string>
+       </property>
        <property name="text">
-        <string/>
+        <string>Выйти</string>
        </property>
       </widget>
      </item>
+     <item row="1" column="2" alignment="Qt::AlignRight">
+      <widget class="QComboBox" name="filter_box">
+       <item>
+        <property name="text">
+         <string>Все</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>От А до Я</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>От Я до А</string>
+        </property>
+       </item>
+      </widget>
+     </item>
     </layout>
-   </item>
-   <item>
-    <layout class="QGridLayout" name="down_layout_sort"/>
    </item>
    <item>
     <widget class="QScrollArea" name="scrollArea">
@@ -86,7 +131,7 @@
         <x>0</x>
         <y>0</y>
         <width>680</width>
-        <height>534</height>
+        <height>516</height>
        </rect>
       </property>
      </widget>
