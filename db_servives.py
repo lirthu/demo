@@ -63,3 +63,12 @@ class DB_service:
         except Exception as e:
             QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
             return None
+
+    # def load_products(self):
+    #     if not self.connection:
+    #         return None
+    #     try:
+    #         with self.connection.cursor() as c:
+    #             c.execute('''
+    #             SELECT * FROM items i ''')
+

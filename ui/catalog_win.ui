@@ -39,17 +39,17 @@
       <widget class="QComboBox" name="sort_box">
        <item>
         <property name="text">
-         <string>Все</string>
+         <string>Сортировка</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Цена выше</string>
+         <string>По возрастанию</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Цена ниже</string>
+         <string>По убыванию</string>
         </property>
        </item>
       </widget>
@@ -103,17 +103,7 @@
       <widget class="QComboBox" name="filter_box">
        <item>
         <property name="text">
-         <string>Все</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>От А до Я</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>От Я до А</string>
+         <string>Все поставщики</string>
         </property>
        </item>
       </widget>
@@ -130,8 +120,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>680</width>
-        <height>516</height>
+        <width>686</width>
+        <height>527</height>
        </rect>
       </property>
      </widget>

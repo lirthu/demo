@@ -1,7 +1,8 @@
 import sys
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout, QHBoxLayout
+from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout, QHBoxLayout, \
+    QComboBox, QLineEdit
 from PyQt6.uic import loadUi
 from db_servives import DB_service
 
@@ -11,6 +12,10 @@ class CatalogWin(QDialog):
     name_label: QLabel
     scrollWidget: QWidget
     scrollArea: QScrollArea
+    sort_box: QComboBox
+    filter_box: QComboBox
+    lineEdit: QLineEdit
+    label: QLabel
 
     # def set_font(self):
     #     self.font = QtGui.QFont()
@@ -33,6 +38,11 @@ class CatalogWin(QDialog):
             self.name_label.setText(f'{self.user.surename} {self.user.name} {self.user.thirdname}')
 
         self.exit_btn.clicked.connect(self.open_auth_win)
+        # self.sort_box.hide()
+        # self.filter_box.hide()
+        # self.lineEdit.hide()
+        # self.label.hide()
+
 
     def display_products(self, products_list):
         self.scrollWidget.deleteLater()
@@ -87,6 +97,10 @@ class CatalogWin(QDialog):
             product_discount_label.setStyleSheet("border: 1px solid black")
             product_discount_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
             product_layout.addWidget(product_discount_label)
+
+    # def load_items(self):
+    #     with DB_service. as cur:
+
 
     def open_auth_win(self):
         from auth_win import AuthWin
