@@ -1,5 +1,6 @@
 import sys
 
+from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout, QHBoxLayout, \
     QComboBox, QLineEdit
@@ -17,10 +18,7 @@ class CatalogWin(QDialog):
     lineEdit: QLineEdit
     label: QLabel
 
-    # def set_font(self):
-    #     self.font = QtGui.QFont()
-    #     self.font.setFamily("TimesNewRoman")
-    #     self.font.setPointSize(13)
+
 
     def __init__(self, user=None):
         super().__init__()
@@ -43,8 +41,13 @@ class CatalogWin(QDialog):
         # self.lineEdit.hide()
         # self.label.hide()
 
+    # def set_font(self):
+    #     self.font = QtGui.QFont()
+    #     self.font.setFamily("TimesNewRoman")
+    #     self.font.setPointSize(13)
 
     def display_products(self, products_list):
+
         self.scrollWidget.deleteLater()
 
         self.scrollWidget = QWidget()
