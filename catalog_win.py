@@ -15,36 +15,38 @@ class CatalogWin(QDialog):
     scrollArea: QScrollArea
     sort_box: QComboBox
     filter_box: QComboBox
-    lineEdit: QLineEdit
-    label: QLabel
-
-
+    search_line: QLineEdit
+    search_label: QLabel
+    add_item_btn: QPushButton
 
     def __init__(self, user=None):
         super().__init__()
         loadUi('ui\\catalog_win.ui',self)
         self.user = user
 
-        # self.set_font()
-
         self.products_list = DB_service().get_product_info()
 
-        if self.products_list:
-            self.display_products(self.products_list)
+        self.is_admin = user is not None and user.id_role == 1
 
-        if self.user:
-            self.name_label.setText(f'{self.user.surename} {self.user.name} {self.user.thirdname}')
+        if self.products_list:
+            self.total_search()
+        try:
+            if self.user:
+                self.name_label.setText(f'{self.user.surename} {self.user.name} {self.user.thirdname}')
+            # if not self.user or self.user.id_role == 3:
+            #     self.sort_box.hide()
+            #     self.filter_box.hide()
+            #     self.search_line.hide()
+            #     self.search_label.hide()
+            #     self.add_item_btn.hide()
+            # elif self.user.id_role == 2:
+            #     self.add_item_btn.hide()
+        except Exception as err:
+            print(err)
 
         self.exit_btn.clicked.connect(self.open_auth_win)
-        # self.sort_box.hide()
-        # self.filter_box.hide()
-        # self.lineEdit.hide()
-        # self.label.hide()
+        self.search_line.textChanged.connect(self.total_search)
 
-    # def set_font(self):
-    #     self.font = QtGui.QFont()
-    #     self.font.setFamily("TimesNewRoman")
-    #     self.font.setPointSize(13)
 
     def display_products(self, products_list):
 
@@ -58,6 +60,7 @@ class CatalogWin(QDialog):
 
         for product in products_list:
             product_widget = QWidget()
+            product_widget.setFixedSize(810,210)
             product_layout = QHBoxLayout()
             product_widget.setLayout(product_layout)
             self.products_layout.addWidget(product_widget)
@@ -89,27 +92,34 @@ class CatalogWin(QDialog):
                                         f"Кол-во на складе {product.amount} <br>")
 
             product_info_label.setFixedSize(300,200)
-            # product_info_label.setFont(self.font)
             product_info_label.setWordWrap(True)
             product_info_label.setStyleSheet("border: 1px solid black")
             product_layout.addWidget(product_info_label)
 
             product_discount_label = QLabel(f"Действующая скидка:<br>{product.discount}% <br>")
-            # product_discount_label.setFont(self.font)
             product_discount_label.setWordWrap(True)
             product_discount_label.setStyleSheet("border: 1px solid black")
             product_discount_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+            product_discount_label.setFixedSize(200,200)
             product_layout.addWidget(product_discount_label)
-
-    # def load_items(self):
-    #     with DB_service. as cur:
-
 
     def open_auth_win(self):
         from auth_win import AuthWin
         self.win = AuthWin()
         self.win.show()
         self.close()
+
+    def total_search(self):
+        que = self.search_line.text().lower()
+        temp_products = self.products_list
+        if que:
+            temp_products = [p for p in temp_products
+            if que in p.item_id.lower()
+            or que in p.name.lower()
+            or que in p.category.lower()]
+
+        self.display_products(temp_products)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
