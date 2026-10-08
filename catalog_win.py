@@ -27,20 +27,19 @@ class CatalogWin(QDialog):
         self.products_list = DB_service().get_product_info()
 
         self.is_admin = user is not None and user.id_role == 1
+        is_manager_or_admin = user is not None and user.id_role in (1, 2)
+        if is_manager_or_admin:
+            self.sort_box.hide()
+            self.filter_box.hide()
+            self.search_line.hide()
+            self.search_label.hide()
+            self.add_item_btn.hide()
 
         if self.products_list:
             self.total_search()
         try:
             if self.user:
                 self.name_label.setText(f'{self.user.surename} {self.user.name} {self.user.thirdname}')
-            # if not self.user or self.user.id_role == 3:
-            #     self.sort_box.hide()
-            #     self.filter_box.hide()
-            #     self.search_line.hide()
-            #     self.search_label.hide()
-            #     self.add_item_btn.hide()
-            # elif self.user.id_role == 2:
-            #     self.add_item_btn.hide()
         except Exception as err:
             print(err)
 
