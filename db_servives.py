@@ -63,3 +63,24 @@ class DB_service:
         except Exception as e:
             QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
             return None
+
+    def get_dealers(self):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''select d.dealer_id, d.name 
+                FROM dealers d''')
+                res = c.fetchall()
+                if res:
+                    return res
+                else:
+                    QMessageBox.warning(None, 'Ошибка получения данных', 'Поставщики не найдены')
+                    return None
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
+            return None
+
+if __name__ == '__main__':
+    a = DB_service()
+    print(a.get_dealers())

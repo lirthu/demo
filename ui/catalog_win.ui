@@ -42,16 +42,6 @@
          <string>Сортировка</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>По возрастанию</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>По убыванию</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item row="0" column="0" alignment="Qt::AlignLeft">

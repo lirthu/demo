@@ -24,28 +24,51 @@ class CatalogWin(QDialog):
         loadUi('ui\\catalog_win.ui',self)
         self.user = user
 
-        self.products_list = DB_service().get_product_info()
+        self.products_list = []
+        self.filtered_products = []
 
         self.is_admin = user is not None and user.id_role == 1
         is_manager_or_admin = user is not None and user.id_role in (1, 2)
-        if is_manager_or_admin:
-            self.sort_box.hide()
-            self.filter_box.hide()
-            self.search_line.hide()
-            self.search_label.hide()
-            self.add_item_btn.hide()
+        self.sort_box.setVisible(is_manager_or_admin)
+        self.filter_box.setVisible(is_manager_or_admin)
+        self.search_line.setVisible(is_manager_or_admin)
+        self.search_label.setVisible(is_manager_or_admin)
+        self.add_item_btn.setVisible(is_manager_or_admin)
 
-        if self.products_list:
-            self.total_search()
+        # Блок фильтров и сортировки
+        for sid, sname in DB_service().get_dealers():
+            self.filter_box.addItem(sname, sid)
+
         try:
             if self.user:
                 self.name_label.setText(f'{self.user.surename} {self.user.name} {self.user.thirdname}')
         except Exception as err:
             print(err)
 
-        self.exit_btn.clicked.connect(self.open_auth_win)
-        self.search_line.textChanged.connect(self.total_search)
+        self.sort_box.addItem('Количество ↑', 'asc')
+        self.sort_box.addItem('Количество ↓', 'desc')
 
+        # привязка поиска фильтров сортировки
+        self.search_line.textChanged.connect(self.total_search)
+        # self.sort_box.currentIndexChanged.connect()
+        # self.filter_box.currentIndexChanged.connect()
+
+        self.exit_btn.clicked.connect(self.open_auth_win)
+
+    # def refresh_products(self):
+    #     self.products_list = DB_service.get_product_info() or []
+    #     self.
+
+    def total_search(self):
+        que = self.search_line.text().lower()
+        temp_products = self.products_list
+        if que:
+            temp_products = [p for p in temp_products
+            if que in p.item_id.lower()
+            or que in p.name.lower()
+            or que in p.category.lower()]
+
+        self.display_products(temp_products)
 
     def display_products(self, products_list):
 
@@ -108,16 +131,7 @@ class CatalogWin(QDialog):
         self.win.show()
         self.close()
 
-    def total_search(self):
-        que = self.search_line.text().lower()
-        temp_products = self.products_list
-        if que:
-            temp_products = [p for p in temp_products
-            if que in p.item_id.lower()
-            or que in p.name.lower()
-            or que in p.category.lower()]
 
-        self.display_products(temp_products)
 
 
 if __name__ == '__main__':
