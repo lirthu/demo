@@ -16,7 +16,7 @@ class AuthWin(QDialog):
         super().__init__()
         loadUi('ui\\auth.ui', self)
         self.login_btn.clicked.connect(self.login_auth)
-        self.guest_btn.clicked.connect(self.open_catalog_window)
+        self.guest_btn.clicked.connect(lambda: self.open_catalog_window())
 
     def login_auth(self):
         login = self.login_line.text().strip()

@@ -1,9 +1,7 @@
 import sys
-
-from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout, QHBoxLayout, \
-    QComboBox, QLineEdit
+    QComboBox, QLineEdit, QMessageBox
 from PyQt6.uic import loadUi
 from db_servives import DB_service
 
@@ -20,58 +18,81 @@ class CatalogWin(QDialog):
     add_item_btn: QPushButton
 
     def __init__(self, user=None):
-        super().__init__()
-        loadUi('ui\\catalog_win.ui',self)
-        self.user = user
-
-        self.products_list = []
-        self.filtered_products = []
-
-        self.is_admin = user is not None and user.id_role == 1
-        is_manager_or_admin = user is not None and user.id_role in (1, 2)
-        self.sort_box.setVisible(is_manager_or_admin)
-        self.filter_box.setVisible(is_manager_or_admin)
-        self.search_line.setVisible(is_manager_or_admin)
-        self.search_label.setVisible(is_manager_or_admin)
-        self.add_item_btn.setVisible(is_manager_or_admin)
-
-        # Блок фильтров и сортировки
-        for sid, sname in DB_service().get_dealers():
-            self.filter_box.addItem(sname, sid)
-
         try:
-            if self.user:
-                self.name_label.setText(f'{self.user.surename} {self.user.name} {self.user.thirdname}')
-        except Exception as err:
-            print(err)
+            super().__init__()
+            loadUi('ui\\catalog_win.ui',self)
+            self.user = user
 
-        self.sort_box.addItem('Количество ↑', 'asc')
-        self.sort_box.addItem('Количество ↓', 'desc')
+            self.is_admin = user is not None and user.id_role == 1
+            is_manager_or_admin = user is not None and user.id_role in (1, 2)
 
-        # привязка поиска фильтров сортировки
-        self.search_line.textChanged.connect(self.total_search)
-        # self.sort_box.currentIndexChanged.connect()
-        # self.filter_box.currentIndexChanged.connect()
+            self.products_list = []
+            self.filtered_products = []
 
-        self.exit_btn.clicked.connect(self.open_auth_win)
+            try:
+                if self.user:
+                    self.name_label.setText(f'{self.user.surename} {self.user.name} {self.user.thirdname}')
+            except Exception as err:
+                print(err)
+
+            # Блок фильтров и сортировки
+            for sid, sname in DB_service().get_dealers():
+                    self.filter_box.addItem(sname, sid)
+
+            self.sort_box.addItem('Количество ↑', 'asc')
+            self.sort_box.addItem('Количество ↓', 'desc')
+
+            self.sort_box.setVisible(is_manager_or_admin)
+            self.filter_box.setVisible(is_manager_or_admin)
+            self.search_line.setVisible(is_manager_or_admin)
+            self.search_label.setVisible(is_manager_or_admin)
+            self.add_item_btn.setVisible(is_manager_or_admin)
+
+            # привязка поиска фильтров сортировки
+            self.search_line.textChanged.connect(self.apply_filters)
+            self.sort_box.currentIndexChanged.connect(self.apply_filters)
+            self.filter_box.currentIndexChanged.connect(self.apply_filters)
+
+            self.exit_btn.clicked.connect(self.open_auth_win)
+
+            self.refresh_products()
+        except Exception as error:
+            QMessageBox.warning(self, 'Error', f'Erorr: {error}')
 
     def refresh_products(self):
-        self.products_list = DB_service.get_product_info() or []
-        self.total_search()
+        self.products_list = DB_service().get_product_info() or []
+        self.apply_filters()
 
-    def total_search(self):
-        que = self.search_line.text().lower()
-        dealer_box = self.filter_box.currentData()
-        sort_box = self.sort_box.currentData()
+    def apply_filters(self):
+        try:
+            search_query  = self.search_line.text().lower()
+            filter_box = self.filter_box.currentData()
+            sort_box = self.sort_box.currentData()
 
-        temp_products = []
-        for p in self.products_list:
-            if text:
-                haystack = (
-                    f"{p.name} {}"
-                )
+            result = []
 
-        self.display_products(temp_products)
+            for p in self.products_list:
+                if search_query:
+                    haystack = (
+                        f"{p.name} {p.category} {p.id_dealer}"
+                    ).lower()
+                    if search_query not in haystack:
+                        continue
+
+                if filter_box is not None and p.id_dealer != filter_box:
+                    continue
+
+                result.append(p)
+
+            if sort_box == 'asc':
+                result.sort(key=lambda p: p.amount)
+            elif sort_box == 'desc':
+                result.sort(key=lambda p: p.amount, reverse=True)
+
+            self.filtered_products = result
+            self.display_products(result)
+        except Exception as error:
+            QMessageBox.warning(self, 'Error', f'Erorr: {error}')
 
     def display_products(self, products_list):
 
