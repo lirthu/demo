@@ -55,18 +55,21 @@ class CatalogWin(QDialog):
 
         self.exit_btn.clicked.connect(self.open_auth_win)
 
-    # def refresh_products(self):
-    #     self.products_list = DB_service.get_product_info() or []
-    #     self.
+    def refresh_products(self):
+        self.products_list = DB_service.get_product_info() or []
+        self.total_search()
 
     def total_search(self):
         que = self.search_line.text().lower()
-        temp_products = self.products_list
-        if que:
-            temp_products = [p for p in temp_products
-            if que in p.item_id.lower()
-            or que in p.name.lower()
-            or que in p.category.lower()]
+        dealer_box = self.filter_box.currentData()
+        sort_box = self.sort_box.currentData()
+
+        temp_products = []
+        for p in self.products_list:
+            if text:
+                haystack = (
+                    f"{p.name} {}"
+                )
 
         self.display_products(temp_products)
 
