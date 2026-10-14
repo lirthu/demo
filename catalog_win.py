@@ -46,13 +46,14 @@ class CatalogWin(QDialog):
             self.filter_box.setVisible(is_manager_or_admin)
             self.search_line.setVisible(is_manager_or_admin)
             self.search_label.setVisible(is_manager_or_admin)
-            self.add_item_btn.setVisible(is_manager_or_admin)
+            self.add_item_btn.setVisible(self.is_admin)
 
             # привязка поиска фильтров сортировки
             self.search_line.textChanged.connect(self.apply_filters)
             self.sort_box.currentIndexChanged.connect(self.apply_filters)
             self.filter_box.currentIndexChanged.connect(self.apply_filters)
 
+            self.add_item_btn.clicked.connect(self.add_item_button)
             self.exit_btn.clicked.connect(self.open_auth_win)
 
             self.refresh_products()
@@ -148,6 +149,9 @@ class CatalogWin(QDialog):
             product_discount_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
             product_discount_label.setFixedSize(200,200)
             product_layout.addWidget(product_discount_label)
+
+    def add_item_button(self):
+        pass
 
     def open_auth_win(self):
         from auth_win import AuthWin
