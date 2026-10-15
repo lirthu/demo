@@ -1,5 +1,6 @@
 import sys
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QLabel, QWidget, QScrollArea, QVBoxLayout, QHBoxLayout, \
     QComboBox, QLineEdit, QMessageBox
 from PyQt6.uic import loadUi
@@ -37,7 +38,7 @@ class CatalogWin(QDialog):
 
             # Блок фильтров и сортировки
             for sid, sname in DB_service().get_dealers():
-                    self.filter_box.addItem(sname, sid)
+                self.filter_box.addItem(sname, sname)
 
             self.sort_box.addItem('Количество ↑', 'asc')
             self.sort_box.addItem('Количество ↓', 'desc')
@@ -53,7 +54,7 @@ class CatalogWin(QDialog):
             self.sort_box.currentIndexChanged.connect(self.apply_filters)
             self.filter_box.currentIndexChanged.connect(self.apply_filters)
 
-            self.add_item_btn.clicked.connect(self.add_item_button)
+            self.add_item_btn.clicked.connect(self.open_item_dialog)
             self.exit_btn.clicked.connect(self.open_auth_win)
 
             self.refresh_products()
@@ -61,7 +62,7 @@ class CatalogWin(QDialog):
             QMessageBox.warning(self, 'Error', f'Erorr: {error}')
 
     def refresh_products(self):
-        self.products_list = DB_service().get_product_info() or []
+        self.products_list = DB_service().get_products_info() or []
         self.apply_filters()
 
     def apply_filters(self):
@@ -106,6 +107,7 @@ class CatalogWin(QDialog):
         self.scrollWidget.setLayout(self.products_layout)
 
         for product in products_list:
+            font = QFont('Times', 13)
             product_widget = QWidget()
             product_widget.setFixedSize(810,210)
             product_layout = QHBoxLayout()
@@ -119,7 +121,8 @@ class CatalogWin(QDialog):
                 product_widget.setStyleSheet("""background-color: #89ffee""")
 
             if product.discount > 0:
-                discounted_price = round(product.price * (1 - product.discount / 100), 2)
+                price = float(product.price)
+                discounted_price = round(price * (1 - product.discount / 100), 2)
                 price_text = f"<s style='color:red'>{product.price}</s> {discounted_price}"
             else:
                 price_text = str(product.price)
@@ -137,30 +140,45 @@ class CatalogWin(QDialog):
                                         f"Цена {price_text} <br>"
                                         f"Единица измерения {product.shtuki} <br>"
                                         f"Кол-во на складе {product.amount} <br>")
-
+            product_info_label.setFont(font)
             product_info_label.setFixedSize(300,200)
             product_info_label.setWordWrap(True)
             product_info_label.setStyleSheet("border: 1px solid black")
             product_layout.addWidget(product_info_label)
 
             product_discount_label = QLabel(f"Действующая скидка:<br>{product.discount}% <br>")
+            product_discount_label.setFont(font)
             product_discount_label.setWordWrap(True)
             product_discount_label.setStyleSheet("border: 1px solid black")
             product_discount_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
             product_discount_label.setFixedSize(200,200)
             product_layout.addWidget(product_discount_label)
+            if self.is_admin:
+                product_widget.setCursor(Qt.CursorShape.PointingHandCursor)
+                product_widget.mouseDoubleClickEvent = (
+                    lambda event, pid=product.item_id: self.open_item_dialog(pid)
+                )
 
-    def add_item_button(self):
-        pass
+    def open_item_dialog(self, item_id=None):
+        try:
+            from add_item_win import AddItemWindow
+            dialog = AddItemWindow(self, item_id=item_id)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                db = DB_service()
+                if item_id is None:
+                    db.save_product(*dialog.result)
+                    self.refresh_products()
+                else:
+                    db.update_product(*dialog.result)
+                    self.refresh_products()
+        except Exception as error:
+            print(error)
 
     def open_auth_win(self):
         from auth_win import AuthWin
         self.win = AuthWin()
         self.win.show()
         self.close()
-
-
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

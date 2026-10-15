@@ -35,13 +35,13 @@ class DB_service:
             QMessageBox.warning(None, 'Ошибка получения данных!', f'Ошибка: {e}')
             return None
 
-    def get_product_info(self):
+    def get_products_info(self):
         if not self.connection:
             return None
         try:
             with self.connection.cursor() as c:
                 c.execute('''select i.item_id, i.name, i.price, i.category, i.description, i.discount,
-                i.amount, c.creator_id, d.dealer_id, i.shtuki, i.photo
+                i.amount, c.name, d.name, i.shtuki, i.photo
                 FROM items i
                 JOIN creators c on c.creator_id = i.id_creator
                 JOIN dealers d on d.dealer_id = i.id_dealer''')
@@ -79,6 +79,68 @@ class DB_service:
                     return None
         except Exception as e:
             QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
+            return None
+
+    def get_creators(self):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''select c.creator_id, c.name 
+                FROM creators c''')
+                res = c.fetchall()
+                if res:
+                    return res
+                else:
+                    QMessageBox.warning(None, 'Ошибка получения данных', 'Поставщики не найдены')
+                    return None
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
+            return None
+
+    def save_product(self, id, name, description, price, category, discount, amount, photo, idcreator, iddealer, shtuki):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+
+                c.execute('''INSERT INTO items (item_id, name, price, category, description, photo, discount,
+                amount, id_creator, id_dealer, shtuki) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''', (id, name, price, category, description, photo, discount,
+                amount, idcreator, iddealer, shtuki,))
+            self.connection.commit()
+        except Exception as error:
+            import traceback  # ← добавить
+            traceback.print_exc()
+            QMessageBox.warning(None, 'Ошибка добавления товара', f'Ошибка: {error}')
+
+    def update_product(self, id, name, description, price, category, discount,
+                       amount, photo, idcreator, iddealer, shtuki):
+        if not self.connection:
+            return
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''UPDATE items
+                             SET name=%s, price=%s, category=%s, description=%s,
+                                 photo=%s, discount=%s, amount=%s,
+                                 id_creator=%s, id_dealer=%s, shtuki=%s
+                             WHERE item_id=%s''',
+                          (name, price, category, description, photo, discount,
+                           amount, idcreator, iddealer, shtuki, id))
+            self.connection.commit()
+        except Exception as error:
+            QMessageBox.warning(None, 'Ошибка обновления товара', f'Ошибка: {error}')
+
+    def get_product_by_id(self, item_id):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''SELECT item_id, name, price, category, description, discount,
+                                    amount, id_creator, id_dealer, shtuki, photo
+                             FROM items WHERE item_id=%s''', (item_id,))
+                return c.fetchone()
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения товара', f'Ошибка: {e}')
             return None
 
 if __name__ == '__main__':
