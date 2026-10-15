@@ -143,6 +143,16 @@ class DB_service:
             QMessageBox.warning(None, 'Ошибка получения товара', f'Ошибка: {e}')
             return None
 
+    def delete_product(self, item_id):
+        if not self.connection:
+            return
+        try:
+            with self.connection.cursor() as c:
+                c.execute('DELETE FROM items WHERE item_id=%s', (item_id,))
+            self.connection.commit()
+        except Exception as error:
+            QMessageBox.warning(None, 'Ошибка удаления товара', f'Ошибка: {error}')
+
 if __name__ == '__main__':
     a = DB_service()
     print(a.get_dealers())

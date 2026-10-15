@@ -1,7 +1,7 @@
 import sys
 
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QDialog, QComboBox, QPushButton, QLineEdit, QLabel
+from PyQt6.QtWidgets import QApplication, QDialog, QComboBox, QPushButton, QLineEdit, QLabel, QMessageBox
 from PyQt6.uic import loadUi
 from PyQt6 import QtWidgets, QtGui, QtCore
 
@@ -44,6 +44,10 @@ class AddItemWindow(QDialog):
 
         self.browse_btn.clicked.connect(self.browse_image)
         self.cancel_btn.clicked.connect(self.reject)
+        if self.item_id is None:
+            self.delete_btn.hide()
+        else:
+            self.delete_btn.clicked.connect(self.delete_item)
 
         if self.item_id is not None:
             self.load_item()
@@ -102,7 +106,6 @@ class AddItemWindow(QDialog):
             self.show_image_preview(file_name)
 
     def show_image_preview(self, image_path):
-        """Показ превью изображения"""
         try:
             pixmap = QPixmap(image_path)
             image = pixmap.scaled(300, 200)
@@ -114,8 +117,17 @@ class AddItemWindow(QDialog):
             print(f"Ошибка загрузки изображения: {e}")
             self.photo_label.setText("Ошибка\nзагрузки")
 
-    def delete_item(self):
-        pass
+    def delete_item(self, item_id):
+        if self.item_id is None:
+            return
+        answer = QMessageBox.question(
+            self, 'Удаление',
+            'Вы уверены, что хотите удалить товар?',
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if answer == QMessageBox.StandardButton.Yes:
+            DB_service().delete_product(self.item_id)
+            self.reject()
 
     def save_item(self):
         try:

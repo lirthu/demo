@@ -54,7 +54,7 @@ class CatalogWin(QDialog):
             self.sort_box.currentIndexChanged.connect(self.apply_filters)
             self.filter_box.currentIndexChanged.connect(self.apply_filters)
 
-            self.add_item_btn.clicked.connect(self.open_item_dialog)
+            self.add_item_btn.clicked.connect(lambda: self.open_item_dialog(None))
             self.exit_btn.clicked.connect(self.open_auth_win)
 
             self.refresh_products()
@@ -167,10 +167,9 @@ class CatalogWin(QDialog):
                 db = DB_service()
                 if item_id is None:
                     db.save_product(*dialog.result)
-                    self.refresh_products()
                 else:
                     db.update_product(*dialog.result)
-                    self.refresh_products()
+                self.refresh_products()
         except Exception as error:
             print(error)
 
