@@ -41,7 +41,7 @@ class DB_service:
         try:
             with self.connection.cursor() as c:
                 c.execute('''select u.user_id, u.surename, u.thirdname, r.name
-                FROM users
+                FROM users u
                 JOIN roles r on u.id_role = r.role_id''')
                 res = c.fetchall()
                 if res:
@@ -58,7 +58,7 @@ class DB_service:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''select giver_id, index, address
+                c.execute('''SELECT giver_id, `index`, address
                 FROM give_order''')
                 res = c.fetchall()
                 if res:
@@ -75,8 +75,8 @@ class DB_service:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''select item_id, name, price
-                FROM users''')
+                c.execute('''SELECT item_id, name, price
+                FROM items''')
                 res = c.fetchall()
                 if res:
                     return res
@@ -138,8 +138,8 @@ class DB_service:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''select c.creator_id, c.name 
-                FROM creators c''')
+                c.execute('''select creator_id, name 
+                FROM creators''')
                 res = c.fetchall()
                 if res:
                     return res
@@ -210,7 +210,9 @@ class DB_service:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''SELECT * FROM orders''')
+                c.execute('''SELECT o.order_id, o.status, g.address, o.date_created, o.date_delivered
+                            FROM orders o
+                            JOIN give_order g on o.id_giver = g.giver_id''')
                 return c.fetchall()
         except Exception as error:
             QMessageBox.warning(None, 'Ошибка получения данных о заказах', f'Ошибка: {error}')

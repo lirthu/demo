@@ -1,12 +1,16 @@
 import sys
 
-from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QMessageBox
+from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QMessageBox, QComboBox
 from PyQt6.uic import loadUi
 from db_servives import DB_service
 
 class AddOrderWin(QDialog):
     return_btn: QPushButton
     delete_btn: QPushButton
+    cancel: QPushButton
+    user_box: QComboBox
+    giver_box: QComboBox
+    item_box: QComboBox
     def __init__(self, order_id = None):
         super().__init__()
         loadUi('ui\\add_order.ui', self)
@@ -17,19 +21,34 @@ class AddOrderWin(QDialog):
             self.delete_btn.clicked.connect(self.delete_order)
             self.load_order(self.order_id)
 
-    def show_dealers(self):
-        self.user_box.addItem('Выберете клиента')
-        for sid, sname in DB_service().get_users():
-            self.user_box.addItem(sname, sid)
+        self.cancel.clicked.connect(self.reject)
 
-    def show_creators(self):
-        self.creator_box.addItem('Выберете Производителя')
-        for sid, sname in DB_service().get_creators():
-            self.creator_box.addItem(sname, sid)
+        self.show_users()
+        self.show_givers()
+        self.show_items()
+
+    # блок добавления
+
+    def show_users(self):
+        self.user_box.addItem('Выберете клиента', None)
+        for id, name, surename, role in DB_service().get_users():
+            self.user_box.addItem(f'{surename} {name}: {role}', id)
+
+    def show_givers(self):
+        self.giver_box.addItem('Выберете производителя', None)
+        for id, g_index, name in DB_service().get_givers():
+            self.giver_box.addItem(f'{name} {g_index}', id)
+
+    def show_items(self):
+        self.item_box.addItem('Выберете товар', None)
+        for id, name, price in DB_service().get_items():
+            self.item_box.addItem(f'{name} --- {price} руб.', id)
+
+    # блок редактирования
 
     def load_order(self, order_id):
         db = DB_service()
-        row = db.get_order_by_id()
+        row = db.get_order_by_id(order_id)
 
     def delete_order(self):
         from db_servives import DB_service
