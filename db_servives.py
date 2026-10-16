@@ -35,6 +35,58 @@ class DB_service:
             QMessageBox.warning(None, 'Ошибка получения данных!', f'Ошибка: {e}')
             return None
 
+    def get_users(self):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''select u.user_id, u.surename, u.thirdname, r.name
+                FROM users
+                JOIN roles r on u.id_role = r.role_id''')
+                res = c.fetchall()
+                if res:
+                    return res
+                else:
+                    QMessageBox.warning(None, 'Ошибка получения данных', 'Клиенты не найдены')
+                    return None
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
+            return None
+
+    def get_givers(self):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''select giver_id, index, address
+                FROM give_order''')
+                res = c.fetchall()
+                if res:
+                    return res
+                else:
+                    QMessageBox.warning(None, 'Ошибка получения данных', 'Пункты выдачи не найдены')
+                    return None
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
+            return None
+
+    def get_items(self):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''select item_id, name, price
+                FROM users''')
+                res = c.fetchall()
+                if res:
+                    return res
+                else:
+                    QMessageBox.warning(None, 'Ошибка получения данных', 'Товары не найдены')
+                    return None
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения данных', f'Ошибка: {e}')
+            return None
+
     def get_products_info(self):
         if not self.connection:
             return None
@@ -155,13 +207,68 @@ class DB_service:
 
     def get_orders_info(self):
         if not self.connection:
-            return
+            return None
         try:
             with self.connection.cursor() as c:
                 c.execute('''SELECT * FROM orders''')
-
+                return c.fetchall()
         except Exception as error:
             QMessageBox.warning(None, 'Ошибка получения данных о заказах', f'Ошибка: {error}')
+
+    def save_order(self, order_id):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+
+                c.execute('''INSERT INTO orders (order_id) VALUES (%s)''', (order_id,))
+            self.connection.commit()
+        except Exception as error:
+            QMessageBox.warning(None, 'Ошибка добавления товара', f'Ошибка: {error}')
+
+    def update_order(self, order_id):
+        if not self.connection:
+            return
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''UPDATE orders
+                             SET 
+                             WHERE order_id=%s''',
+                          (order_id,))
+                c.execute('''UPDATE inorders
+                            SET 
+                            WHERE order_id=%s''',
+                          (order_id,))
+            self.connection.commit()
+        except Exception as error:
+            QMessageBox.warning(None, 'Ошибка обновления заказа', f'Ошибка: {error}')
+
+    def delete_order(self, order_id):
+        if not self.connection:
+            return
+        try:
+            with self.connection.cursor() as c:
+                c.execute('DELETE FROM inorders WHERE id_order=%s', (order_id,))
+                c.execute('DELETE FROM orders WHERE order_id=%s', (order_id,))
+            self.connection.commit()
+        except Exception as error:
+            QMessageBox.warning(None, 'Ошибка удаления товара', f'Ошибка: {error}')
+        return None
+
+    def get_order_by_id(self, order_id):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''SELECT order_id
+                             FROM orders WHERE order_id=%s''', (order_id,))
+
+                return c.fetchone()
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения заказа', f'Ошибка: {e}')
+            return None
+
+
 
 if __name__ == '__main__':
     a = DB_service()

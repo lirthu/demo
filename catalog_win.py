@@ -165,13 +165,13 @@ class CatalogWin(QDialog):
     def open_item_dialog(self, item_id=None):
         try:
             from add_item_win import AddItemWindow
-            dialog = AddItemWindow(self, item_id=item_id)
-            if dialog.exec() == QDialog.DialogCode.Accepted:
+            win = AddItemWindow(self, item_id=item_id)
+            if win.exec() == QDialog.DialogCode.Accepted:
                 db = DB_service()
                 if item_id is None:
-                    db.save_product(*dialog.result)
+                    db.save_product(*win.result)
                 else:
-                    db.update_product(*dialog.result)
+                    db.update_product(*win.result)
                 self.refresh_products()
         except Exception as error:
             print(error)
@@ -185,9 +185,9 @@ class CatalogWin(QDialog):
     def open_orders(self):
         try:
             from orders_win import OrderWin
-            self.win = OrderWin()
+            self.win = OrderWin(self.user)
             self.win.show()
-            self.exec()
+            self.close()
         except Exception as error:
             QMessageBox.warning(self, 'Ошибка', f'Ошибка {error}')
 

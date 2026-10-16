@@ -117,7 +117,9 @@ class AddItemWindow(QDialog):
             print(f"Ошибка загрузки изображения: {e}")
             self.photo_label.setText("Ошибка\nзагрузки")
 
-    def delete_item(self, item_id):
+    def delete_item(self):
+        from db_servives import DB_service
+        db = DB_service()
         if self.item_id is None:
             return
         answer = QMessageBox.question(
@@ -126,7 +128,7 @@ class AddItemWindow(QDialog):
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if answer == QMessageBox.StandardButton.Yes:
-            DB_service().delete_product(self.item_id)
+            db.delete_product(self.item_id)
             self.reject()
 
     def save_item(self):
