@@ -153,6 +153,16 @@ class DB_service:
         except Exception as error:
             QMessageBox.warning(None, 'Ошибка удаления товара', f'Ошибка: {error}')
 
+    def get_orders_info(self):
+        if not self.connection:
+            return
+        try:
+            with self.connection.cursor() as c:
+                c.execute('''SELECT * FROM orders''')
+
+        except Exception as error:
+            QMessageBox.warning(None, 'Ошибка получения данных о заказах', f'Ошибка: {error}')
+
 if __name__ == '__main__':
     a = DB_service()
     print(a.get_dealers())

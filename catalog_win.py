@@ -17,6 +17,7 @@ class CatalogWin(QDialog):
     search_line: QLineEdit
     search_label: QLabel
     add_item_btn: QPushButton
+    open_orders_btn: QPushButton
 
     def __init__(self, user=None):
         try:
@@ -48,6 +49,7 @@ class CatalogWin(QDialog):
             self.search_line.setVisible(is_manager_or_admin)
             self.search_label.setVisible(is_manager_or_admin)
             self.add_item_btn.setVisible(self.is_admin)
+            self.open_orders_btn.setVisible(self.is_admin)
 
             # привязка поиска фильтров сортировки
             self.search_line.textChanged.connect(self.apply_filters)
@@ -56,6 +58,7 @@ class CatalogWin(QDialog):
 
             self.add_item_btn.clicked.connect(lambda: self.open_item_dialog(None))
             self.exit_btn.clicked.connect(self.open_auth_win)
+            self.open_orders_btn.clicked.connect(self.open_orders)
 
             self.refresh_products()
         except Exception as error:
@@ -136,7 +139,7 @@ class CatalogWin(QDialog):
             product_info_label = QLabel(f"{product.category} | {product.name}<br>"
                                         f"Описание товара {product.description} <br>"
                                         f"Производитель {product.id_creator} <br>"
-                                        f"Поставщик {product.id_dealer}"
+                                        f"Поставщик {product.id_dealer} <br>"
                                         f"Цена {price_text} <br>"
                                         f"Единица измерения {product.shtuki} <br>"
                                         f"Кол-во на складе {product.amount} <br>")
@@ -178,6 +181,15 @@ class CatalogWin(QDialog):
         self.win = AuthWin()
         self.win.show()
         self.close()
+
+    def open_orders(self):
+        try:
+            from orders_win import OrderWin
+            self.win = OrderWin()
+            self.win.show()
+            self.exec()
+        except Exception as error:
+            QMessageBox.warning(self, 'Ошибка', f'Ошибка {error}')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
