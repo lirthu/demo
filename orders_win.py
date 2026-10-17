@@ -1,27 +1,37 @@
 import sys
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QDialog, QApplication, QPushButton, QMessageBox, QHBoxLayout, QWidget, QLabel, QVBoxLayout, \
-    QScrollArea
+from PyQt6.QtGui import QFont, QCursor
+from PyQt6.QtWidgets import (
+    QDialog, QApplication, QPushButton, QMessageBox, QHBoxLayout,
+    QWidget, QLabel, QVBoxLayout, QScrollArea
+)
 from PyQt6.uic import loadUi
 from db_servives import DB_service
 
+
+class ClickableOrderWidget(QWidget):
+    """Карточка заказа, открывающая заказ по щелчку мыши."""
+    def __init__(self, order_id, on_click, parent=None):
+        super().__init__(parent)
+        self.order_id = order_id
+        self.on_click = on_click
+        self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.on_click(self.order_id)
+        super().mousePressEvent(event)
+
+
 class OrderWin(QDialog):
-    return_btn: QPushButton
-    scrollArea: QScrollArea
-    scrollWidget: QWidget
-    add_item_btn: QPushButton
     def __init__(self, user):
         super().__init__()
         self.user = user
         loadUi('ui\\order_win.ui', self)
         self.return_btn.clicked.connect(self.return_to_items)
-        self.add_item_btn.clicked.connect(self.open_add_order_win)
-
-        self.orders = []
-        self.orders = DB_service().get_orders_info()
-        self.display_orders(self.orders)
+        self.add_item_btn.clicked.connect(lambda: self.open_add_order_win())
+        self.refresh_orders()
 
     def return_to_items(self):
         from catalog_win import CatalogWin
@@ -30,60 +40,74 @@ class OrderWin(QDialog):
         self.close()
 
     def display_orders(self, orders_list):
-
-        self.scrollWidget.deleteLater()
+        # Не удаляем scrollWidget до удаления его содержимого: это безопаснее для Qt.
+        old_widget = self.scrollArea.takeWidget()
+        if old_widget is not None:
+            old_widget.deleteLater()
 
         self.scrollWidget = QWidget()
+        self.orders_layout = QVBoxLayout(self.scrollWidget)
+        self.orders_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setWidget(self.scrollWidget)
 
-        self.orders_layout = QVBoxLayout()
-        self.scrollWidget.setLayout(self.orders_layout)
-
-        for orders in orders_list:
+        for order in orders_list or []:
+            order_id, status, address, date_created, date_delivered = order
             font = QFont('Times', 13)
-            order_widget = QWidget()
-            order_widget.setFixedSize(850,210)
-            order_layout = QHBoxLayout()
-            order_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            order_widget.setLayout(order_layout)
-            self.orders_layout.addWidget(order_widget)
+            card = ClickableOrderWidget(order_id, self.open_add_order_win)
+            card.setFixedSize(830, 210)
+            card.setStyleSheet(
+                'QWidget { border: 1px solid #777; background: white; }'
+                'QWidget:hover { background: #f0f6ff; }'
+            )
+            layout = QHBoxLayout(card)
+            layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-            # print(orders)
+            info = QLabel(
+                f'Артикул заказа: {order_id}<br>'
+                f'Статус: {status}<br>'
+                f'Адрес пункта выдачи: {address}<br>'
+                f'Дата создания: {date_created}'
+            )
+            info.setFont(font)
+            info.setFixedSize(490, 190)
+            info.setWordWrap(True)
+            info.setStyleSheet('border: none; background: transparent;')
+            info.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            layout.addWidget(info)
 
-            order_info_label = QLabel(f"Артикул заказа: {orders[0]}<br>"
-                                      f"Статус {orders[1]}<br>"
-                                      f"Адрес пункта выдачи {orders[2]}<br>"
-                                      f"Дата {orders[1]}<br>"
-                                        )
-            order_info_label.setFont(font)
-            order_info_label.setFixedSize(650,200)
-            order_info_label.setWordWrap(True)
-            order_info_label.setStyleSheet("border: 1px solid black")
-            order_layout.addWidget(order_info_label)
+            delivery = QLabel(f'Дата доставки:<br>{date_delivered or "не указана"}')
+            delivery.setFont(font)
+            delivery.setWordWrap(True)
+            delivery.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+            delivery.setFixedSize(220, 190)
+            delivery.setStyleSheet('border: none; background: transparent;')
+            delivery.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            layout.addWidget(delivery)
+            self.orders_layout.addWidget(card)
 
-            order_delivery_label = QLabel(f"Дата доставки:<br>{orders[2]} <br>")
-            order_delivery_label.setFont(font)
-            order_delivery_label.setWordWrap(True)
-            order_delivery_label.setStyleSheet("border: 1px solid black")
-            order_delivery_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-            order_delivery_label.setFixedSize(150,200)
-            order_layout.addWidget(order_delivery_label)
+        self.orders_layout.addStretch()
 
     def open_add_order_win(self, order_id=None):
         try:
             from add_order_win import AddOrderWin
-            from db_servives import DB_service
             win = AddOrderWin(order_id)
-            # win.exec()
             if win.exec() == QDialog.DialogCode.Accepted:
-                db = DB_service()
-                if order_id is None:
-                    db.save_order(*win.result)
-                else:
-                    db.update_order(*win.result)
-            # self.refresh_orders()
+                # Удаление уже выполняется в диалоге. Сохраняем только при наличии результата.
+                if win.result is not None:
+                    db = DB_service()
+                    if order_id is None:
+                        db.save_order(win.result)
+                    else:
+                        db.update_order(order_id, win.result)
+                self.refresh_orders()
         except Exception as error:
             QMessageBox.warning(self, 'Ошибка открытия окна', f'Ошибка: {error}')
+
+    def refresh_orders(self):
+        self.orders = DB_service().get_orders_info() or []
+        self.display_orders(self.orders)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

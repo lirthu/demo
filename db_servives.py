@@ -75,7 +75,7 @@ class DB_service:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''SELECT item_id, name, price
+                c.execute('''SELECT item_id, name
                 FROM items''')
                 res = c.fetchall()
                 if res:
@@ -217,57 +217,82 @@ class DB_service:
         except Exception as error:
             QMessageBox.warning(None, 'Ошибка получения данных о заказах', f'Ошибка: {error}')
 
-    def save_order(self, order_id):
+    def save_order(self, data):
         if not self.connection:
-            return None
+            return False
         try:
             with self.connection.cursor() as c:
-
-                c.execute('''INSERT INTO orders (order_id, date_created, ) VALUES (%s)''', (order_id,))
+                c.execute(
+                    "INSERT INTO orders (date_created, date_delivered, id_giver, id_user, code, status) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
+                    (data['date_created'], data['date_delivered'], data['id_giver'],
+                     data['id_user'], data['code'], data['status'])
+                )
+                order_id = c.lastrowid
+                for item_id, quantity in data['items'].items():
+                    c.execute(
+                        "INSERT INTO inorder (id_order, id_item, amount) VALUES (%s, %s, %s)",
+                        (order_id, item_id, quantity)
+                    )
             self.connection.commit()
+            return True
         except Exception as error:
-            QMessageBox.warning(None, 'Ошибка добавления товара', f'Ошибка: {error}')
+            self.connection.rollback()
+            QMessageBox.warning(None, 'Ошибка добавления заказа', f'Ошибка: {error}')
+            return False
 
-    def update_order(self, order_id):
+    def update_order(self, order_id, data):
         if not self.connection:
-            return
+            return False
         try:
             with self.connection.cursor() as c:
-                c.execute('''UPDATE orders
-                             SET 
-                             WHERE order_id=%s''',
-                          (order_id,))
-                c.execute('''UPDATE inorders
-                            SET 
-                            WHERE order_id=%s''',
-                          (order_id,))
+                c.execute(
+                    "UPDATE orders SET date_created=%s, date_delivered=%s, id_giver=%s, "
+                    "id_user=%s, code=%s, status=%s WHERE order_id=%s",
+                    (data['date_created'], data['date_delivered'], data['id_giver'],
+                     data['id_user'], data['code'], data['status'], order_id)
+                )
             self.connection.commit()
+            return True
         except Exception as error:
+            self.connection.rollback()
             QMessageBox.warning(None, 'Ошибка обновления заказа', f'Ошибка: {error}')
+            return False
 
     def delete_order(self, order_id):
         if not self.connection:
-            return
+            return False
         try:
             with self.connection.cursor() as c:
-                c.execute('DELETE FROM inorders WHERE id_order=%s', (order_id,))
+                c.execute('DELETE FROM inorder WHERE id_order=%s', (order_id,))
                 c.execute('DELETE FROM orders WHERE order_id=%s', (order_id,))
             self.connection.commit()
+            return True
         except Exception as error:
-            QMessageBox.warning(None, 'Ошибка удаления товара', f'Ошибка: {error}')
-        return None
+            self.connection.rollback()
+            QMessageBox.warning(None, 'Ошибка удаления заказа', f'Ошибка: {error}')
+            return False
 
     def get_order_by_id(self, order_id):
         if not self.connection:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''SELECT order_id, date_created, date_delivered, id_giver, id_user, code, status
-                             FROM orders WHERE order_id=%s''', (order_id,))
-
+                c.execute("SELECT order_id, date_created, date_delivered, id_giver, id_user, code, status FROM orders WHERE order_id=%s", (order_id,))
                 return c.fetchone()
         except Exception as e:
             QMessageBox.warning(None, 'Ошибка получения заказа', f'Ошибка: {e}')
+            return None
+
+    def get_order_items(self, order_id):
+        if not self.connection:
+            return None
+        try:
+            with self.connection.cursor() as c:
+                c.execute('SELECT id_item, amount FROM inorder WHERE id_order=%s', (order_id,))
+                return {item_id: quantity for item_id, quantity in c.fetchall()}
+        except Exception as e:
+            QMessageBox.warning(None, 'Ошибка получения состава заказа', f'Ошибка: {e}')
             return None
 
 
