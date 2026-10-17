@@ -76,7 +76,6 @@ class AddItemWindow(QDialog):
         idx = self.creator_box.findData(id_creator)
         if idx >= 0:
             self.creator_box.setCurrentIndex(idx)
-
         if photo:
             self.show_image_preview(photo)
 

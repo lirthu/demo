@@ -223,7 +223,7 @@ class DB_service:
         try:
             with self.connection.cursor() as c:
 
-                c.execute('''INSERT INTO orders (order_id) VALUES (%s)''', (order_id,))
+                c.execute('''INSERT INTO orders (order_id, date_created, ) VALUES (%s)''', (order_id,))
             self.connection.commit()
         except Exception as error:
             QMessageBox.warning(None, 'Ошибка добавления товара', f'Ошибка: {error}')
@@ -262,7 +262,7 @@ class DB_service:
             return None
         try:
             with self.connection.cursor() as c:
-                c.execute('''SELECT order_id
+                c.execute('''SELECT order_id, date_created, date_delivered, id_giver, id_user, code, status
                              FROM orders WHERE order_id=%s''', (order_id,))
 
                 return c.fetchone()

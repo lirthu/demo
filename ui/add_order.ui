@@ -17,7 +17,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Окно управления заказом</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -30,7 +30,7 @@
    <item row="0" column="1">
     <widget class="QLineEdit" name="line_id_order">
      <property name="readOnly">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -121,7 +121,7 @@
       </widget>
      </item>
      <item alignment="Qt::AlignRight">
-      <widget class="QPushButton" name="pushButton_4">
+      <widget class="QPushButton" name="add_btn">
        <property name="text">
         <string>Добавить</string>
        </property>
@@ -164,18 +164,18 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>582</width>
-        <height>318</height>
+        <width>588</width>
+        <height>395</height>
        </rect>
       </property>
      </widget>
     </widget>
    </item>
    <item row="6" column="1">
-    <widget class="QLineEdit" name="lineEdit"/>
+    <widget class="QLineEdit" name="status_line"/>
    </item>
    <item row="5" column="1">
-    <widget class="QLineEdit" name="lineEdit_2"/>
+    <widget class="QLineEdit" name="code_giver_line"/>
    </item>
    <item row="8" column="0">
     <widget class="QLabel" name="label_8">

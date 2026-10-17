@@ -50,7 +50,7 @@ class OrderWin(QDialog):
 
             # print(orders)
 
-            order_info_label = QLabel(f"Артикул: {orders[0]}<br>"
+            order_info_label = QLabel(f"Артикул заказа: {orders[0]}<br>"
                                       f"Статус {orders[1]}<br>"
                                       f"Адрес пункта выдачи {orders[2]}<br>"
                                       f"Дата {orders[1]}<br>"
@@ -74,13 +74,13 @@ class OrderWin(QDialog):
             from add_order_win import AddOrderWin
             from db_servives import DB_service
             win = AddOrderWin(order_id)
-            win.exec()
-            # if win.exec() == QDialog.DialogCode.Accepted:
-                # db = DB_service()
-                # if order_id is None:
-                #     db.save_order(*win.result)
-                # else:
-                #     db.update_order(*win.result)
+            # win.exec()
+            if win.exec() == QDialog.DialogCode.Accepted:
+                db = DB_service()
+                if order_id is None:
+                    db.save_order(*win.result)
+                else:
+                    db.update_order(*win.result)
             # self.refresh_orders()
         except Exception as error:
             QMessageBox.warning(self, 'Ошибка открытия окна', f'Ошибка: {error}')
